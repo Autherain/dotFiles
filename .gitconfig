@@ -1,0 +1,10 @@
+[user]
+	name = xxxxx
+	email = xxxxxx
+[core]
+	excludesFile = ~/.gitignore_global
+	editor = nvim
+[pull]
+  rebase = True 
+[push]
+  autoSetupRemote
