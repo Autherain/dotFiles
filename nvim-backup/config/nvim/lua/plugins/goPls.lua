@@ -13,7 +13,7 @@ return {
         end
 
         -- Fallback to .git
-        return util.root_pattern(".git")(fname) or vim.fs.dirname(fname)
+        return util.root_pattern(".git")(fname) or util.path.dirname(fname)
       end
 
       -- Configure both servers with the same root_dir detection
