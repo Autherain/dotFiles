@@ -1,5 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf clean backup
+.PHONY: all install theme tpm tmux git fzf clean backup backup-lazyvim lazyvim
 
 # Default target
 all: backup install
@@ -13,6 +13,13 @@ backup:
 	@[ -f ~/.tmux.conf ] && cp ~/.tmux.conf ~/.dotfiles_backup/ || true
 	@[ -f ~/.gitignore_global ] && cp ~/.gitignore_global ~/.dotfiles_backup/ || true
 	@echo "Backup completed"
+
+# Backup LazyVim
+backup-lazyvim:
+	@echo "Backing up LazyVim config..."
+	@mkdir -p ./nvim-backup
+	@[ -d ~/.config/nvim ] && cp -r ~/.config/nvim ./nvim-backup/config || echo "No nvim config to backup"
+	@echo "LazyVim config backup completed and saved to repository"
 
 # Install starship theme
 theme:
@@ -43,8 +50,14 @@ tmux: tpm
 lazyvim:
 	@echo "Installing LazyVim configuration..."
 	@mkdir -p ~/.config/nvim
-	@cp lazy-lock.json ~/.config/nvim/
-	@echo "LazyVim configuration installed"
+	@if [ -d ./nvim-backup/config/nvim ]; then \
+		cp -r ./nvim-backup/config/nvim/* ~/.config/nvim/; \
+		echo "Installed LazyVim configuration from backup"; \
+	else \
+		echo "No LazyVim config files found in ./nvim-backup/config/nvim. Please run 'make backup-lazyvim' first"; \
+		exit 1; \
+	fi
+	@echo "LazyVim configuration installed successfully"
 
 # Configure git
 git:
