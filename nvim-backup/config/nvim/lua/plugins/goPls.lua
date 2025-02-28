@@ -23,20 +23,24 @@ return {
       opts.servers.gopls = opts.servers.gopls or {}
       opts.servers.gopls.root_dir = find_go_mod
 
-      -- Configure golangci_lint_ls to use the same root detection
+      -- Configure golangci_lint_ls
       opts.servers.golangci_lint_ls = opts.servers.golangci_lint_ls or {}
       opts.servers.golangci_lint_ls.root_dir = find_go_mod
 
-      -- This helps golangci-lint find the correct module
+      -- This approach ensures golangci-lint output is processed by the LSP
+      -- and shown directly in the editor, while handling possible errors
       opts.servers.golangci_lint_ls.init_options = {
         command = {
-          "golangci-lint",
-          "run",
-          "--out-format",
-          "json",
-          "--issues-exit-code=1",
+          "bash",
+          "-c",
+          "set -o pipefail; TERM=dumb COLORTERM='' golangci-lint run --out-format json --show-stats=false --print-resources-usage=false 2>/dev/null",
         },
       }
+
+      -- Add a Neovim command to examine the debug output
+      vim.api.nvim_create_user_command("GolangCIDebug", function()
+        vim.cmd("vsplit /tmp/golangci-lint-errors.log")
+      end, {})
     end,
   },
 }
