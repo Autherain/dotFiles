@@ -1,6 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf clean backup backup-lazyvim lazyvim
-
+.PHONY: all install theme tpm tmux git fzf dive k9s clean backup backup-lazyvim lazyvim
 # Default target
 all: backup install
 
@@ -74,8 +73,46 @@ fzf:
 		echo "fzf is already installed"; \
 	fi
 
+# Install dive (Docker image explorer)
+dive:
+	@echo "Installing dive..."
+	@if ! command -v dive >/dev/null 2>&1; then \
+		if [ -f /etc/debian_version ]; then \
+			wget https://github.com/wagoodman/dive/releases/download/v0.11.0/dive_0.11.0_linux_amd64.deb -O /tmp/dive.deb && \
+			sudo apt install /tmp/dive.deb && \
+			rm /tmp/dive.deb; \
+		elif [ -f /etc/redhat-release ]; then \
+			curl -OL https://github.com/wagoodman/dive/releases/download/v0.11.0/dive_0.11.0_linux_amd64.rpm && \
+			sudo rpm -i dive_0.11.0_linux_amd64.rpm && \
+			rm dive_0.11.0_linux_amd64.rpm; \
+		elif command -v brew >/dev/null 2>&1; then \
+			brew install dive; \
+		else \
+			echo "Please install dive manually from https://github.com/wagoodman/dive"; \
+		fi; \
+	else \
+		echo "dive is already installed"; \
+	fi
+
+# Install k9s (Kubernetes CLI UI)
+k9s:
+	@echo "Installing k9s..."
+	@if ! command -v k9s >/dev/null 2>&1; then \
+		if command -v snap >/dev/null 2>&1; then \
+			sudo snap install k9s; \
+		elif command -v brew >/dev/null 2>&1; then \
+			brew install k9s; \
+		elif command -v go >/dev/null 2>&1; then \
+			go install github.com/derailed/k9s@latest; \
+		else \
+			echo "Please install k9s manually from https://github.com/derailed/k9s"; \
+		fi; \
+	else \
+		echo "k9s is already installed"; \
+	fi
+
 # Configure shell
-install: theme tpm tmux git fzf
+install: theme tpm tmux git fzf dive k9s
 	@echo "Configuring shell..."
 	@if ! grep -q "starship init bash" ~/.bashrc; then \
 		echo 'eval "$$(starship init bash)"' >> ~/.bashrc; \
