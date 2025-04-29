@@ -52,11 +52,9 @@ return {
           "golangci-lint",
           "run",
           "--output.json.path",
-          "stdout", -- Direct JSON output to stdout
-          "--issues-exit-code=0", -- Don't fail on issues (prevents LSP errors)
-          "--show-stats=false", -- Don't show stats to keep output clean
-          "--config",
-          configPath,
+          "stdout",
+          "--show-stats=false",
+          "--issues-exit-code=1",
         },
       }
 
@@ -84,21 +82,98 @@ return {
       end
 
       -- Add debug command
+      -- Add improved debug command
       vim.api.nvim_create_user_command("GolangCIDebug", function()
-        -- Create a temp file to capture the output
-        local temp_file = "/tmp/golangci-lint-debug.log"
+        -- Create a timestamped temp file to capture the output
+        local timestamp = os.date("%Y%m%d-%H%M%S")
+        local temp_dir = vim.fn.expand("~/.cache/golangci-lint-debug")
+        local temp_file = temp_dir .. "/golangci-lint-debug-" .. timestamp .. ".log"
 
-        -- Run golangci-lint with verbose output
-        local cmd = "cd "
-          .. vim.fn.getcwd()
-          .. " && golangci-lint run --verbose --output.json.path "
-          .. temp_file
-          .. " 2>&1"
-        os.execute(cmd)
+        -- Create the directory if it doesn't exist
+        vim.fn.mkdir(temp_dir, "p")
 
-        -- Open the file in a split
-        vim.cmd("vsplit " .. temp_file)
-      end, { desc = "Debug golangci-lint output" })
+        -- Get current file and its directory
+        local current_file = vim.fn.expand("%:p")
+        local current_dir = vim.fn.expand("%:p:h")
+
+        -- Create a new buffer for command output
+        local buf = vim.api.nvim_create_buf(false, true)
+        local width = vim.api.nvim_get_option("columns")
+        local height = vim.api.nvim_get_option("lines")
+        local win = vim.api.nvim_open_win(buf, true, {
+          relative = "editor",
+          width = math.floor(width * 0.8),
+          height = math.floor(height * 0.8),
+          row = math.floor(height * 0.1),
+          col = math.floor(width * 0.1),
+          style = "minimal",
+          border = "rounded",
+        })
+
+        -- Set buffer options
+        vim.api.nvim_buf_set_option(buf, "modifiable", true)
+        vim.api.nvim_buf_set_option(buf, "buftype", "nofile")
+        vim.api.nvim_buf_set_option(buf, "swapfile", false)
+        vim.api.nvim_buf_set_option(buf, "bufhidden", "wipe")
+
+        -- Initial content
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+          "Running golangci-lint debug...",
+          "Current file: " .. current_file,
+          "Current directory: " .. current_dir,
+          "Output will be saved to: " .. temp_file,
+          "",
+          "Please wait...",
+        })
+
+        -- Run the command asynchronously
+        vim.fn.jobstart(
+          "cd " .. vim.fn.getcwd() .. " && golangci-lint run --verbose --output.json.path " .. temp_file .. " 2>&1",
+          {
+            on_stdout = function(_, data)
+              if data then
+                vim.schedule(function()
+                  vim.api.nvim_buf_set_option(buf, "modifiable", true)
+                  vim.api.nvim_buf_set_lines(buf, -1, -1, false, data)
+                  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+                end)
+              end
+            end,
+            on_stderr = function(_, data)
+              if data then
+                vim.schedule(function()
+                  vim.api.nvim_buf_set_option(buf, "modifiable", true)
+                  vim.api.nvim_buf_set_lines(buf, -1, -1, false, data)
+                  vim.api.nvim_buf_set_option(buf, "modifiable", false)
+                end)
+              end
+            end,
+            on_exit = function(_, exit_code)
+              vim.schedule(function()
+                vim.api.nvim_buf_set_option(buf, "modifiable", true)
+                vim.api.nvim_buf_set_lines(buf, -1, -1, false, {
+                  "",
+                  "golangci-lint completed with exit code: " .. exit_code,
+                  "Output saved to: " .. temp_file,
+                  "",
+                  "Press 'o' to open the output file in a split",
+                  "Press 'q' to close this window",
+                })
+                vim.api.nvim_buf_set_option(buf, "modifiable", false)
+              end)
+            end,
+          }
+        )
+
+        -- Set up keymappings
+        vim.keymap.set("n", "q", function()
+          vim.api.nvim_win_close(win, true)
+        end, { buffer = buf, noremap = true })
+
+        vim.keymap.set("n", "o", function()
+          vim.cmd("vsplit " .. temp_file)
+        end, { buffer = buf, noremap = true })
+      end, { desc = "Debug golangci-lint output with live feedback" })
 
       -- Add info command
       vim.api.nvim_create_user_command("GolangCIInfo", function()
