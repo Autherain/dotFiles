@@ -1,5 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf dive k9s clean backup backup-lazyvim lazyvim
+.PHONY: all install theme tpm tmux git fzf dive k9s bat clean backup backup-lazyvim lazyvim
 # Default target
 all: backup install
 
@@ -111,8 +111,25 @@ k9s:
 		echo "k9s is already installed"; \
 	fi
 
+# Install bat (cat with wings)
+bat:
+	@echo "Installing bat..."
+	@if ! command -v bat >/dev/null 2>&1; then \
+		if command -v brew >/dev/null 2>&1; then \
+			brew install bat; \
+		elif command -v apt >/dev/null 2>&1; then \
+			sudo apt install bat; \
+		elif command -v dnf >/dev/null 2>&1; then \
+			sudo dnf install bat; \
+		else \
+			echo "Please install bat manually from https://github.com/sharkdp/bat"; \
+		fi; \
+	else \
+		echo "bat is already installed"; \
+	fi
+
 # Configure shell
-install: theme tpm tmux git fzf dive k9s
+install: theme tpm tmux git fzf dive k9s bat
 	@echo "Configuring shell..."
 	@if ! grep -q "starship init bash" ~/.bashrc; then \
 		echo 'eval "$$(starship init bash)"' >> ~/.bashrc; \
