@@ -1,5 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf dive k9s bat clean backup backup-lazyvim lazyvim
+.PHONY: all install theme tpm tmux git fzf dive k9s yazi clean backup
 # Default target
 all: backup install
 
@@ -11,14 +11,8 @@ backup:
 	@[ -f ~/.gitconfig ] && cp ~/.gitconfig ~/.dotfiles_backup/ || true
 	@[ -f ~/.tmux.conf ] && cp ~/.tmux.conf ~/.dotfiles_backup/ || true
 	@[ -f ~/.gitignore_global ] && cp ~/.gitignore_global ~/.dotfiles_backup/ || true
+	@[ -d ~/.config/yazi ] && cp -r ~/.config/yazi ~/.dotfiles_backup/ || true
 	@echo "Backup completed"
-
-# Backup LazyVim
-backup-lazyvim:
-	@echo "Backing up LazyVim config..."
-	@mkdir -p ./nvim-backup
-	@[ -d ~/.config/nvim ] && cp -r ~/.config/nvim ./nvim-backup/config || echo "No nvim config to backup"
-	@echo "LazyVim config backup completed and saved to repository"
 
 # Install starship theme
 theme:
@@ -41,22 +35,11 @@ tmux: tpm
 	@echo "Configuring tmux..."
 	@cp .tmux.conf ~/.tmux.conf
 	@echo "Remember to:"
-	@echo "  - Press Ctrl+a+r to reload tmux config"
-	@echo "  - Press Ctrl+a+I to install plugins"
+	@echo "  - Press Ctrl+q+r to reload tmux config"
+	@echo "  - Press Ctrl+q+I to install plugins"
 	@echo "  - Visit https://github.com/tmux-plugins/tmux-yank for copy-paste setup"
 
-# Install LazyVim configuration
-lazyvim:
-	@echo "Installing LazyVim configuration..."
-	@mkdir -p ~/.config/nvim
-	@if [ -d ./nvim-backup/config/nvim ]; then \
-		cp -r ./nvim-backup/config/nvim/* ~/.config/nvim/; \
-		echo "Installed LazyVim configuration from backup"; \
-	else \
-		echo "No LazyVim config files found in ./nvim-backup/config/nvim. Please run 'make backup-lazyvim' first"; \
-		exit 1; \
-	fi
-	@echo "LazyVim configuration installed successfully"
+
 
 # Configure git
 git:
@@ -94,6 +77,28 @@ dive:
 		echo "dive is already installed"; \
 	fi
 
+# Install yazi (terminal file manager)
+yazi:
+	@echo "Installing yazi..."
+	@if ! command -v yazi >/dev/null 2>&1; then \
+		if command -v brew >/dev/null 2>&1; then \
+			brew install yazi ffmpeg sevenzip jq poppler fd ripgrep fzf zoxide resvg imagemagick; \
+		elif command -v pacman >/dev/null 2>&1; then \
+			sudo pacman -S yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide resvg imagemagick --noconfirm; \
+		elif command -v snap >/dev/null 2>&1; then \
+			sudo snap install yazi --classic; \
+		else \
+			echo "Please install yazi manually: https://yazi-rs.github.io/docs/installation"; \
+		fi; \
+	else \
+		echo "yazi is already installed"; \
+	fi
+	@echo "Installing Catppuccin Mocha theme for yazi..."
+	@mkdir -p ~/.config/yazi
+	@cp yazi/theme.toml yazi/yazi.toml ~/.config/yazi/
+	@cp yazi/Catppuccin-mocha.tmTheme ~/.config/yazi/
+	@echo "Yazi theme and config installed"
+
 # Install k9s (Kubernetes CLI UI)
 k9s:
 	@echo "Installing k9s..."
@@ -111,25 +116,8 @@ k9s:
 		echo "k9s is already installed"; \
 	fi
 
-# Install bat (cat with wings)
-bat:
-	@echo "Installing bat..."
-	@if ! command -v bat >/dev/null 2>&1; then \
-		if command -v brew >/dev/null 2>&1; then \
-			brew install bat; \
-		elif command -v apt >/dev/null 2>&1; then \
-			sudo apt install bat; \
-		elif command -v dnf >/dev/null 2>&1; then \
-			sudo dnf install bat; \
-		else \
-			echo "Please install bat manually from https://github.com/sharkdp/bat"; \
-		fi; \
-	else \
-		echo "bat is already installed"; \
-	fi
-
 # Configure shell
-install: theme tpm tmux git fzf dive k9s bat
+install: theme tpm tmux git fzf dive k9s yazi
 	@echo "Configuring shell..."
 	@if ! grep -q "starship init bash" ~/.bashrc; then \
 		echo 'eval "$$(starship init bash)"' >> ~/.bashrc; \
@@ -146,12 +134,16 @@ install: theme tpm tmux git fzf dive k9s bat
 	@if ! grep -q "zoxide init bash" ~/.bashrc; then \
 		echo 'eval "$$(zoxide init bash)"' >> ~/.bashrc; \
 	fi
+	@if ! grep -q "alias ya='yazi'" ~/.bashrc; then \
+		echo "alias y='yazi'" >> ~/.bashrc; \
+	fi
 	@echo "Shell configuration completed"
 
 # Clean installed configurations
 clean:
 	@echo "Cleaning up configurations..."
 	@rm -f ~/.config/starship.toml
+	@rm -rf ~/.config/yazi
 	@rm -f ~/.tmux.conf
 	@rm -f ~/.gitconfig ~/.gitignore_global
 	@echo "Cleanup completed"
