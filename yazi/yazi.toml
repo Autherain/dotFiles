@@ -1,0 +1,8 @@
+# Yazi configuration
+# https://yazi-rs.github.io/docs/configuration/overview
+
+[opener]
+# Use Neovim as default editor instead of vi
+edit = [
+  { run = 'nvim "$@"', block = true }
+]

@@ -1,0 +1,228 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+//
+// For Opencode
+// See https://github.com/anomalyco/opencode/blob/dev/packages/extensions/zed/extension.toml
+//
+// Not yet working with all models :(
+// See: https://github.com/anomalyco/opencode/issues/8973
+{
+  // ── Fonts (tes préférences) ──────────────────────────────────────────────────
+  "ui_font_family": "JetBrainsMono Nerd Font",
+  "buffer_font_family": "JetBrainsMono Nerd Font",
+  "ui_font_size": 17.0,
+  "buffer_font_size": 20.0,
+  "agent_ui_font_size": 16.0,
+  "buffer_line_height": "standard",
+
+  // ── Thème (tes préférences) ──────────────────────────────────────────────────
+  "theme": {
+    "mode": "system",
+    "light": "One Light",
+    "dark": "Catppuccin Macchiato",
+  },
+  "icon_theme": "Catppuccin Macchiato",
+
+  // ── Vim & keymap (tes préférences) ──────────────────────────────────────────
+  "vim_mode": true,
+  "base_keymap": "Cursor",
+
+  // ── UI ──────────────────────────────────────────────────────────────────────
+  "title_bar": {
+    "show_sign_in": false,
+  },
+  "git_panel": {
+    "tree_view": true,
+  },
+  "minimap": {
+    "show": "always",
+    "current_line_highlight": "line",
+  },
+  "restore_on_startup": "last_workspace",
+  "auto_update": false,
+
+  // ── Éditeur ─────────────────────────────────────────────────────────────────
+  "autosave": "on_focus_change",
+  "preferred_line_length": 82,
+  "soft_wrap": "editor_width",
+  "inlay_hints": {
+    "enabled": true,
+  },
+
+  // ── Formatage ────────────────────────────────────────────────────────────────
+  "remove_trailing_whitespace_on_save": true,
+  "format_on_save": "on",
+  "formatter": "auto",
+
+  // ── Terminal ─────────────────────────────────────────────────────────────────
+  "terminal": {
+    "cursor_shape": "underline",
+  },
+
+  // ── Extensions auto-installées ───────────────────────────────────────────────
+  "auto_install_extensions": {
+    "dockerfile": true,
+    "docker-compose": true,
+    "helm": true,
+    "ini": true,
+    "toml": true,
+    "basher": true,
+    "terraform": true,
+  },
+
+  // ── File types ───────────────────────────────────────────────────────────────
+  // See https://zed.dev/docs/languages/helm
+  "file_types": {
+    "Helm": [
+      "**/templates/**/*.{yaml,yml}{,.gotmpl}",
+      "**/helmfile.d/**/*.{yaml,yml}{,.gotmpl}",
+      "**/values/*.{yaml,yml}{,.gotmpl}",
+      "**/helmfile.{yaml,yml}{,.gotmpl}",
+    ],
+    "Dockerfile": ["Dockerfile*", "Containerfile*"],
+    "JSON": ["json", "*.code-snippets"],
+  },
+
+  // ── LSP ──────────────────────────────────────────────────────────────────────
+  "lsp": {
+    "helm_ls": {
+      "settings": {
+        "helm-ls": {
+          "logLevel": "info",
+          "yamlls": {
+            "enabled": true,
+            "enabledForFilesGlob": "**/*.{yaml,yml}{,.gotmpl}",
+            // Path to yaml-language-server (use `which yaml-language-server`)
+            // NB: can't use the zed's extension installed one :(
+            "path": "yaml-language-server",
+            "config": {
+              "yaml": {
+                "validate": true,
+                "completion": true,
+                "hover": true,
+                "schemas": {
+                  "kubernetes": "templates/**",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  // ── Langages ─────────────────────────────────────────────────────────────────
+  "languages": {
+    "Python": {
+      "formatter": "language_server",
+      "language_servers": ["ruff", "ty", "!pyright"],
+    },
+    "Markdown": {
+      "formatter": "language_server",
+      "language_servers": ["rumdl"],
+    },
+    "TOML": {
+      "formatter": "language_server",
+      "language_servers": ["tombi"],
+    },
+    "Nu": {
+      // XXX sadly nufmt and nu-lint are broken for now...
+      "formatter": "language_server",
+      "language_servers": ["nu"],
+    },
+    "JavaScript": {
+      "formatter": "language_server",
+      "language_servers": ["oxfmt", "oxlint"],
+    },
+    "TypeScript": {
+      "formatter": "language_server",
+      // See:
+      // - https://oxc.rs/docs/guide/usage/formatter/editors.html#nvim-lspconfig
+      // - https://github.com/oxc-project/oxc
+      "language_servers": ["oxfmt", "oxlint"],
+    },
+    // Check https://github.com/google/yamlfmt for CLI usage
+    "YAML": {
+      "formatter": {
+        "external": {
+          "command": "yamlfmt",
+          "arguments": ["-continue_on_error", "-quiet", "/dev/stdin"],
+        },
+      },
+      "language_servers": ["yaml-language-server"],
+    },
+    "Helm": {
+      "formatter": {
+        "external": {
+          "command": "yamlfmt",
+          "arguments": ["-continue_on_error", "-quiet", "/dev/stdin"],
+        },
+      },
+      "language_servers": ["helm"],
+    },
+    "Dockerfile": {
+      "formatter": {
+        "external": {
+          "command": "dockerfmt",
+          "arguments": ["--newline", "--indent=4", "--space-redirects"],
+        },
+      },
+      "language_servers": ["dockerfile-language-server"],
+    },
+    "Shell Script": {
+      "formatter": {
+        "external": {
+          "command": "shfmt",
+          "arguments": ["-ln=bash", "--simplify", "--indent=4"],
+        },
+      },
+      "language_servers": ["bash-language-server"],
+    },
+  },
+
+  // ── Agent / Opencode ─────────────────────────────────────────────────────────
+  "agent_servers": {
+    "Opencode": {
+      "type": "custom",
+      "command": "opencode",
+      "args": ["acp"],
+      "env": {},
+    },
+    "claude-acp": {
+      "type": "registry",
+      "env": {
+        "CLAUDE_CODE_EXECUTABLE": "/usr/local/bin/claude",
+      },
+    },
+  },
+  "agent": {
+    "use_modifier_to_send": true,
+    "play_sound_when_agent_done": true,
+    "model_parameters": [],
+  },
+
+  // ── Edit predictions ─────────────────────────────────────────────────────────
+  "edit_predictions": {
+    // "codestral": {
+    //   "max_tokens": 250,
+    // },
+    // "provider": "codestral",
+    // XXX To use copilot as prediction provider:
+    "provider": "copilot",
+    "copilot": {
+      "enterprise_uri": "https://github.com/wiremind",
+    },
+  },
+
+  // ── Télémétrie ───────────────────────────────────────────────────────────────
+  "telemetry": {
+    "diagnostics": true,
+    "metrics": true,
+  },
+}

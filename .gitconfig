@@ -1,6 +1,6 @@
 [user]
-	name = xxxxx
-	email = xxxxxx
+	name = Etienne Vaneecloo
+	email = etienne.vaneecloo@gmail.com
 [core]
 	excludesFile = ~/.gitignore_global
 	editor = nvim
