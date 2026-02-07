@@ -131,11 +131,11 @@ install: theme tpm tmux git fzf dive k9s yazi
 	@if ! grep -q "alias n='nvim'" ~/.bashrc; then \
 		echo "alias n='nvim'" >> ~/.bashrc; \
 	fi
-	@if ! grep -q "zoxide init bash" ~/.bashrc; then \
-		echo 'eval "$$(zoxide init bash)"' >> ~/.bashrc; \
-	fi
 	@if ! grep -q "alias ya='yazi'" ~/.bashrc; then \
 		echo "alias y='yazi'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "zoxide init bash" ~/.bashrc; then \
+		echo 'eval "$$(zoxide init bash)"' >> ~/.bashrc; \
 	fi
 	@echo "Shell configuration completed"
 
