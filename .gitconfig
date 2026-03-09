@@ -1,10 +1,14 @@
 [user]
 	name = Etienne Vaneecloo
-	email = etienne.vaneecloo@gmail.com
+	email = autherain@gmail.com
+
+[includeIf "hasconfig:remote.*.url:*gitlab*/**"]
+	path = ~/.gitconfig-gitlab
+
 [core]
 	excludesFile = ~/.gitignore_global
 	editor = nvim
 [pull]
-  rebase = True 
+  rebase = True
 [push]
   autoSetupRemote
