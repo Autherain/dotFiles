@@ -9,6 +9,7 @@ backup:
 	@mkdir -p ~/.dotfiles_backup
 	@[ -f ~/.config/starship.toml ] && cp ~/.config/starship.toml ~/.dotfiles_backup/ || true
 	@[ -f ~/.gitconfig ] && cp ~/.gitconfig ~/.dotfiles_backup/ || true
+	@[ -f ~/.gitconfig-delta ] && cp ~/.gitconfig-delta ~/.dotfiles_backup/ || true
 	@[ -f ~/.tmux.conf ] && cp ~/.tmux.conf ~/.dotfiles_backup/ || true
 	@[ -f ~/.gitignore_global ] && cp ~/.gitignore_global ~/.dotfiles_backup/ || true
 	@[ -d ~/.config/yazi ] && cp -r ~/.config/yazi ~/.dotfiles_backup/ || true
@@ -46,7 +47,7 @@ tmux: tpm
 # Configure git
 git:
 	@echo "Configuring git..."
-	@cp .gitconfig .gitignore_global ~
+	@cp .gitconfig .gitconfig-delta .gitignore_global ~
 	@echo "Git configuration installed"
 
 # Install fzf
@@ -211,7 +212,7 @@ clean:
 	@rm -f ~/.config/starship.toml
 	@rm -rf ~/.config/yazi
 	@rm -f ~/.tmux.conf
-	@rm -f ~/.gitconfig ~/.gitignore_global
+	@rm -f ~/.gitconfig ~/.gitconfig-delta ~/.gitignore_global
 	@rm -rf ~/.config/zed
 	@rm -f ~/.config/lazygit/config.yml
 	@echo "Cleanup completed"

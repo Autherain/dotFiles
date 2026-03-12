@@ -1,0 +1,45 @@
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[pager]
+    diff    = delta
+    log     = delta
+    reflog  = delta
+    show    = delta
+    blame   = delta
+    grep    = delta
+
+[delta]
+    syntax-theme = Dracula
+    dark = true
+    navigate = true
+    line-numbers = true
+    # side-by-side = true
+    hyperlinks = true
+    minus-style = syntax "#3a0e0e"
+    minus-emph-style = syntax bold "#5c1a1a"
+    plus-style = syntax "#0a280a"
+    plus-emph-style = syntax bold "#1a4c1a"
+    file-style = bold yellow ul
+    file-decoration-style = none
+    hunk-header-style = file line-number syntax
+    hunk-header-decoration-style = none
+    line-numbers-minus-style = "#888888"
+    line-numbers-plus-style = "#888888"
+    line-numbers-left-style = "#444444"
+    line-numbers-right-style = "#444444"
+    blame-format = "{author:<20} {commit:<8} {timestamp:<16}"
+    blame-palette = "#101010 #1a1a2e #16213e #0f3460"
+    merge-conflict-begin-symbol = ▼
+    merge-conflict-end-symbol = ▲
+    wrap-max-lines = 2
+
+[diff]
+    colorMoved = default
+    renames = copies
+
+[merge]
+    conflictStyle = zdiff3
