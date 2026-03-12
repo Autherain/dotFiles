@@ -1,0 +1,5 @@
+services:
+  "gitlab.wiremind.io": "gitlab:gitlab.wiremind.io"
+
+gui:
+  nerdFontsVersion: "3"

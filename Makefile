@@ -1,5 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf dive k9s yazi zed clean backup
+.PHONY: all install theme tpm tmux git fzf dive k9s yazi zed lazygit delta clean backup
 # Default target
 all: backup install
 
@@ -13,6 +13,7 @@ backup:
 	@[ -f ~/.gitignore_global ] && cp ~/.gitignore_global ~/.dotfiles_backup/ || true
 	@[ -d ~/.config/yazi ] && cp -r ~/.config/yazi ~/.dotfiles_backup/ || true
 	@[ -d ~/.config/zed ] && cp -r ~/.config/zed ~/.dotfiles_backup/ || true
+	@[ -f ~/.config/lazygit/config.yml ] && cp ~/.config/lazygit/config.yml ~/.dotfiles_backup/ || true
 	@echo "Backup completed"
 
 # Install starship theme
@@ -100,6 +101,30 @@ yazi:
 	@cp yazi/Catppuccin-mocha.tmTheme ~/.config/yazi/
 	@echo "Yazi theme and config installed"
 
+# Install delta (git diff pager)
+delta:
+	@echo "Installing delta..."
+	@if ! command -v delta >/dev/null 2>&1; then \
+		if [ -f /etc/debian_version ]; then \
+			sudo apt install -y git-delta; \
+		elif command -v brew >/dev/null 2>&1; then \
+			brew install git-delta; \
+		elif command -v pacman >/dev/null 2>&1; then \
+			sudo pacman -S git-delta --noconfirm; \
+		else \
+			echo "Please install delta manually from https://github.com/dandavison/delta/releases"; \
+		fi; \
+	else \
+		echo "delta is already installed"; \
+	fi
+
+# Configure lazygit
+lazygit:
+	@echo "Configuring lazygit..."
+	@mkdir -p ~/.config/lazygit
+	@cp lazygit/config.yml ~/.config/lazygit/config.yml
+	@echo "Lazygit configuration installed"
+
 # Install k9s (Kubernetes CLI UI)
 k9s:
 	@echo "Installing k9s..."
@@ -118,8 +143,11 @@ k9s:
 	fi
 
 # Configure shell
-install: theme tpm tmux git fzf dive k9s yazi zed
+install: theme tpm tmux git fzf dive k9s yazi zed lazygit delta
 	@echo "Configuring shell..."
+	@if ! grep -q "stty -ixon" ~/.bashrc; then \
+		echo 'stty -ixon # Disable XON/XOFF so Ctrl+q reaches tmux' >> ~/.bashrc; \
+	fi
 	@if ! grep -q "starship init bash" ~/.bashrc; then \
 		echo 'eval "$$(starship init bash)"' >> ~/.bashrc; \
 	fi
@@ -132,11 +160,40 @@ install: theme tpm tmux git fzf dive k9s yazi zed
 	@if ! grep -q "alias n='nvim'" ~/.bashrc; then \
 		echo "alias n='nvim'" >> ~/.bashrc; \
 	fi
-	@if ! grep -q "alias ya='yazi'" ~/.bashrc; then \
+	@if ! grep -q "alias y='yazi'" ~/.bashrc; then \
 		echo "alias y='yazi'" >> ~/.bashrc; \
 	fi
 	@if ! grep -q "zoxide init bash" ~/.bashrc; then \
 		echo 'eval "$$(zoxide init bash)"' >> ~/.bashrc; \
+	fi
+	@if ! grep -q "alias g='git'" ~/.bashrc; then \
+		echo "alias g='git'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "alias lg='lazygit'" ~/.bashrc; then \
+		echo "alias lg='lazygit'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "alias k='kubecolor'" ~/.bashrc; then \
+		echo "alias k='kubecolor'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "alias kctx" ~/.bashrc; then \
+		echo "alias kctx='kubectl ctx'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "alias kns" ~/.bashrc; then \
+		echo "alias kns='kubectl ns'" >> ~/.bashrc; \
+	fi
+	@if ! grep -q "kubectl completion bash" ~/.bashrc; then \
+		echo 'if command -v kubectl &>/dev/null; then' >> ~/.bashrc; \
+		echo '  source <(kubectl completion bash)' >> ~/.bashrc; \
+		echo '  complete -o default -F __start_kubectl kubectl' >> ~/.bashrc; \
+		echo '  complete -o default -F __start_kubectl k' >> ~/.bashrc; \
+		echo '  complete -o default -F __start_kubectl kubecolor' >> ~/.bashrc; \
+		echo 'fi' >> ~/.bashrc; \
+	fi
+	@if ! grep -q '\.local/bin' ~/.bashrc; then \
+		echo 'export PATH=$$HOME/.local/bin:$$PATH' >> ~/.bashrc; \
+	fi
+	@if ! grep -q 'KREW_ROOT' ~/.bashrc; then \
+		echo 'PATH="$${KREW_ROOT:-$$HOME/.krew}/bin:$$PATH"' >> ~/.bashrc; \
 	fi
 	@echo "Shell configuration completed"
 
@@ -156,4 +213,5 @@ clean:
 	@rm -f ~/.tmux.conf
 	@rm -f ~/.gitconfig ~/.gitignore_global
 	@rm -rf ~/.config/zed
+	@rm -f ~/.config/lazygit/config.yml
 	@echo "Cleanup completed"
