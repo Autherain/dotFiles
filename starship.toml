@@ -15,6 +15,7 @@ $git_status \
 $python \
 $fill \
 $kubernetes \
+$openstack \
 (base) $cmd_duration  $time
 [>](bold green) """
 
@@ -58,6 +59,11 @@ disabled = false
 format = '[$symbol$context( \($namespace\))]($style) '
 style = "text"
 symbol = "☸ "
+
+[openstack]
+format = 'on [$symbol$cloud(\($project\))]($style) '
+style = 'bold yellow'
+symbol = '☁️ '
 
 [cmd_duration]
 format = '[ $duration](peach)'

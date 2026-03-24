@@ -152,6 +152,12 @@ install: theme tpm tmux git fzf dive k9s yazi zed lazygit delta
 	@if ! grep -q "starship init bash" ~/.bashrc; then \
 		echo 'eval "$$(starship init bash)"' >> ~/.bashrc; \
 	fi
+	@if ! grep -q "^export OS_CLOUD=" ~/.bashrc; then \
+		echo 'export OS_CLOUD=eu-cargo-icarus' >> ~/.bashrc; \
+	fi
+	@if ! grep -q "^export OS_CLIENT_CONFIG_FILE=" ~/.bashrc; then \
+		echo 'export OS_CLIENT_CONFIG_FILE="$$HOME/.config/openstack/clouds.yaml"' >> ~/.bashrc; \
+	fi
 	@if ! grep -q "alias ta='tmux attach'" ~/.bashrc; then \
 		echo "alias ta='tmux attach'" >> ~/.bashrc; \
 	fi
