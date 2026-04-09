@@ -1,5 +1,5 @@
 # Makefile for dotfiles installation
-.PHONY: all install theme tpm tmux git fzf dive k9s yazi zed lazygit delta clean backup
+.PHONY: all install theme tpm tmux git fzf dive k9s yazi zed lazygit delta yt-dlp scripts clean backup
 # Default target
 all: backup install
 
@@ -15,6 +15,7 @@ backup:
 	@[ -d ~/.config/yazi ] && cp -r ~/.config/yazi ~/.dotfiles_backup/ || true
 	@[ -d ~/.config/zed ] && cp -r ~/.config/zed ~/.dotfiles_backup/ || true
 	@[ -f ~/.config/lazygit/config.yml ] && cp ~/.config/lazygit/config.yml ~/.dotfiles_backup/ || true
+	@[ -d ~/.config/yt-dlp ] && cp -r ~/.config/yt-dlp ~/.dotfiles_backup/ || true
 	@echo "Backup completed"
 
 # Install starship theme
@@ -144,7 +145,7 @@ k9s:
 	fi
 
 # Configure shell
-install: theme tpm tmux git fzf dive k9s yazi zed lazygit delta
+install: theme tpm tmux git fzf dive k9s yazi zed lazygit delta yt-dlp scripts
 	@echo "Configuring shell..."
 	@if ! grep -q "stty -ixon" ~/.bashrc; then \
 		echo 'stty -ixon # Disable XON/XOFF so Ctrl+q reaches tmux' >> ~/.bashrc; \
@@ -204,6 +205,21 @@ install: theme tpm tmux git fzf dive k9s yazi zed lazygit delta
 	fi
 	@echo "Shell configuration completed"
 
+# Configure yt-dlp
+yt-dlp:
+	@echo "Configuring yt-dlp..."
+	@mkdir -p ~/.config/yt-dlp
+	@cp yt-dlp/config ~/.config/yt-dlp/config
+	@echo "yt-dlp configuration installed"
+
+# Install tag_music script
+scripts:
+	@echo "Installing scripts..."
+	@mkdir -p ~/.local/bin
+	@cp scripts/tag_music.py ~/.local/bin/tag_music.py
+	@echo "Scripts installed to ~/.local/bin"
+	@echo "  Usage: cd ~/Music && uv run tag_music.py"
+
 # Configure Zed editor
 zed:
 	@echo "Configuring Zed..."
@@ -221,4 +237,6 @@ clean:
 	@rm -f ~/.gitconfig ~/.gitconfig-delta ~/.gitignore_global
 	@rm -rf ~/.config/zed
 	@rm -f ~/.config/lazygit/config.yml
+	@rm -f ~/.config/yt-dlp/config
+	@rm -f ~/.local/bin/tag_music.py
 	@echo "Cleanup completed"

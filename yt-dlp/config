@@ -1,0 +1,5 @@
+-x
+--audio-format mp3
+--match-filter "duration < 840"
+--download-archive ~/Music/.archive.txt
+-o ~/Music/%(title)s [%(id)s].%(ext)s
